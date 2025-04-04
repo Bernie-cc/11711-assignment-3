@@ -7,6 +7,25 @@ import time
 from tqdm import tqdm
 
 def calculate_and_save_similarities(input_file, output_file, test_mode = False):
+    """Calculate and save cosine similarities between items based on user ratings
+
+    Calculation Example: 
+    item1 is rated 5 by user1, 4 by user2, 3 by user3
+    item2 is rated 4 by user2, 5 by user3, 3 by user4
+
+    The similarity between item1 and item2 is calculated as follows:
+    similarity = (5*0 + 4*4 + 3*5 + 0*3) / (sqrt(5^2 + 4^2 + 3^2) * sqrt(4^2 + 5^2 + 3^2))
+    
+    
+    Args:
+        input_file: str, path to the input file
+        output_file: str, path to the output file
+        test_mode: bool, whether to run in test mode, if True, only use 2000 items for testing
+    
+    Returns:
+        similarities: dict, a dictionary of item similarities. 
+                      similarities[item1][item2] = similarity between item1 and item2
+    """
     start_time = time.time()
     print("Starting similarity calculation...")
     
