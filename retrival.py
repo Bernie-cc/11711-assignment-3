@@ -40,8 +40,9 @@ class Retrieval:
 
         score = 0
         for i, (history_item, history_rating) in enumerate(history_interaction):
+            if history_item == item_id:
+                continue
 
-            
             collaborative_score = self.get_collaborative_score(item_id, history_item)
             semantic_index_1 = self.asins.index(history_item)
             semantic_index_2 = self.asins.index(item_id)
