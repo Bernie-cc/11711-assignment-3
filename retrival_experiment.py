@@ -2,6 +2,9 @@ from retrival import Retrieval
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+import signal
+import sys
+import multiprocessing as mp
 
 def calculate_metrics(predictions, ground_truth, k):
     """
@@ -30,7 +33,7 @@ def evaluate_model(retriever, test_data, k_values=[5, 10, 20], test_mode = False
     """
     metrics = {k: {'hits': [], 'ndcg': []} for k in k_values}
     if test_mode:
-        test_data = test_data.head(100)
+        test_data = test_data.head(30)
     # Evaluate for each user in test set
     for _, row in tqdm(test_data.iterrows(), desc='Evaluating', total=len(test_data)):
         # Get ground truth item
@@ -55,20 +58,34 @@ def evaluate_model(retriever, test_data, k_values=[5, 10, 20], test_mode = False
     
     return results
 
+def signal_handler(sig, frame):
+    print('\nGracefully shutting down...')
+    # 确保关闭所有进程池
+    if hasattr(mp, '_current_process') and mp._current_process()._pool is not None:
+        mp._current_process()._pool.terminate()
+    sys.exit(0)
+
 if __name__ == "__main__":
-    # Initialize retriever
-    retriever = Retrieval(alpha=0.5, lambda_=0.7, simple_retrival = False)
+    # 注册信号处理器
+    signal.signal(signal.SIGINT, signal_handler)
     
-    # Load test data
-    test_data = pd.read_csv('beauty.test.csv')
-    print(f"Number of users in test set: {len(test_data['reviewerID'].unique())}")
-    
-    # Evaluate model
-    k_values = [5, 10]
-    results = evaluate_model(retriever, test_data, k_values, test_mode = True)
-    
-    # Print results
-    print("\nEvaluation Results:")
-    for metric, value in results.items():
-        print(f"{metric}: {value:.4f}")
+    try:
+        # Initialize retriever
+        retriever = Retrieval(alpha=0.5, lambda_=0.7, simple_retrival=False)
+        
+        # Load test data
+        test_data = pd.read_csv('beauty.test.csv')
+        print(f"Number of users in test set: {len(test_data['reviewerID'].unique())}")
+        
+        # Evaluate model
+        k_values = [5, 10]
+        results = evaluate_model(retriever, test_data, k_values, test_mode=True)
+        
+        # Print results
+        print("\nEvaluation Results:")
+        for metric, value in results.items():
+            print(f"{metric}: {value:.4f}")
+            
+    except KeyboardInterrupt:
+        print('\nReceived keyboard interrupt, shutting down...')
 
