@@ -137,7 +137,8 @@ def log_experiment(results, retriever, test_data, predictions_dict, log_dir='exp
             'history_length': retriever.history_length,
             'k': retriever.k,
             'simple_retrival': retriever.simple_retrival,
-            'num_workers': retriever.num_workers
+            'num_workers': retriever.num_workers,
+            'rating_normalize': retriever.rating_normalize
         },
         'results': results
     }
@@ -166,7 +167,7 @@ if __name__ == "__main__":
     try:
         test_sample_size = 100
         # Initialize retriever
-        retriever = Retrieval(alpha=0.5, lambda_=0.7, simple_retrival=True)
+        retriever = Retrieval(alpha=0.5, lambda_=0.7, simple_retrival=True, rating_normalize="Centered")
         
         # Load test data
         test_data = pd.read_csv('beauty.test.csv')
