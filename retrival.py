@@ -8,7 +8,7 @@ import signal
 import sys
 
 class Retrieval:
-    def __init__(self, alpha=0.5, lambda_=0.7, test_mode = False, k = 20, history_length = 3, simple_retrival = False, num_workers=None):
+    def __init__(self, alpha=0.5, lambda_=0.7, test_mode = False, k = 20, history_length = 3, simple_retrival = False, num_workers=None, rating_normalize = "None"):
         with open('item_collaborative_similarity.json', 'r') as f:
             self.collaborative_matrix = json.load(f)           
         with open('meta_Beauty_filter.json', 'r') as f:
@@ -24,7 +24,7 @@ class Retrieval:
         self.history_length = history_length
         self.simple_retrival = simple_retrival
         self.num_workers = num_workers if num_workers is not None else max(mp.cpu_count() // 2, 1)
-        
+        self.rating_normalize = rating_normalize
     def get_history_interaction(self, user_id):
         '''
         Get the history interaction of a user include tuple of (item, rating)
@@ -53,8 +53,15 @@ class Retrieval:
             semantic_index_1 = self.asins.index(history_item)
             semantic_index_2 = self.asins.index(item_id)
             semantic_score = self.semantic_matrix[semantic_index_1][semantic_index_2]
-            score += (self.alpha * collaborative_score + (1 - self.alpha) * semantic_score) * (history_rating) * (self.lambda_ ** (i+1))
-        
+            if self.rating_normalize == "None":
+                score += (self.alpha * collaborative_score + (1 - self.alpha) * semantic_score) * (history_rating) * (self.lambda_ ** (i+1))
+            elif self.rating_normalize == "Binary":
+                score += (self.alpha * collaborative_score + (1 - self.alpha) * semantic_score) * (self.lambda_ ** (i+1))
+            elif self.rating_normalize == "Centered":
+                score += (self.alpha * collaborative_score + (1 - self.alpha) * semantic_score) * (history_rating - 3) * (self.lambda_ ** (i+1))
+            else:
+                raise ValueError(f"Invalid rating normalization: {self.rating_normalize}")
+            
         score = score / n if n > 0 else 0
         return score
     
