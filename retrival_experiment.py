@@ -79,12 +79,48 @@ def signal_handler(sig, frame):
 def log_experiment(results, retriever, test_data, predictions_dict, log_dir='experiment_logs'):
     """
     Log experiment parameters, results and detailed retrieval results
-    Args:
-        results: dictionary containing evaluation metrics
-        retriever: Retrieval object containing parameters
-        test_data: test dataset
-        predictions_dict: dictionary mapping user_id to their retrieved items
-        log_dir: directory to save log files
+    
+    Will generate two files:
+    1. experiment_metrics.jsonl: Append each experiment's metrics
+       Format:
+       {
+           "timestamp": "2024-03-15 10:30:45",
+           "parameters": {
+               "alpha": 0.5,
+               "lambda": 0.7,
+               "history_length": 3,
+               "k": 20,
+               "simple_retrival": true,
+               "num_workers": 4
+           },
+           "results": {
+               "Hits@5": 0.123,
+               "NDCG@5": 0.456,
+               "Hits@10": 0.234,
+               "NDCG@10": 0.567
+           }
+       }
+    
+    2. retrieval_results_{timestamp}.json: Detailed retrieval results for each user
+       Format:
+       {
+           "parameters": {
+               // same as above parameters
+           },
+           "predictions": {
+               "user_id_1": {
+                   "retrieved_items": [
+                       ["item_id_1", 0.95],  // [item_id, score]
+                       ["item_id_2", 0.85],
+                       ...
+                   ],
+                   "ground_truth": "true_item_id"
+               },
+               "user_id_2": {
+                   // same structure as above
+               }
+           }
+       }
     """
     # Create log directory if not exists
     os.makedirs(log_dir, exist_ok=True)
