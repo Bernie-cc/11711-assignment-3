@@ -144,19 +144,20 @@ if __name__ == "__main__":
     input_file = 'beauty.train.csv'
     output_file = 'item_collaborative_similarity.json'
 
-    # # Calculate and save similarities
-    # similarities = calculate_and_save_similarities(input_file, output_file, test_mode = False)
+    # Calculate and save similarities
+    similarities = calculate_and_save_similarities(input_file, output_file, test_mode = False)
     
-    # # Print similarity statistics
-    # stats = get_similarity_stats(similarities)
-    # print("\nSimilarity Statistics:")
-    # print(f"Total pairs: {stats['total_pairs']}")
-    # print(f"Mean similarity: {stats['mean_similarity']:.4f}")
-    # print(f"Median similarity: {stats['median_similarity']:.4f}")
-    # print(f"Min similarity: {stats['min_similarity']:.4f}")
-    # print(f"Max similarity: {stats['max_similarity']:.4f}")
+    # Print similarity statistics
+    stats = get_similarity_stats(similarities)
+    print("\nSimilarity Statistics:")
+    print(f"Total pairs: {stats['total_pairs']}")
+    print(f"Mean similarity: {stats['mean_similarity']:.4f}")
+    print(f"Median similarity: {stats['median_similarity']:.4f}")
+    print(f"Min similarity: {stats['min_similarity']:.4f}")
+    print(f"Max similarity: {stats['max_similarity']:.4f}")
 
     similarities = load_similarities(output_file)
+    print(len(similarities.keys()))
     
     # Example: find similar items
     test_item = list(similarities.keys())[1]

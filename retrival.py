@@ -24,6 +24,7 @@ class Retrieval:
         self.history_length = history_length
         self.simple_retrival = simple_retrival
         self.num_workers = num_workers if num_workers is not None else max(mp.cpu_count() // 2, 1)
+        
     def get_history_interaction(self, user_id):
         '''
         Get the history interaction of a user include tuple of (item, rating)
