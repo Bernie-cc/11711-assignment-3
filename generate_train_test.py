@@ -64,7 +64,7 @@ def split_train_test(input_file, train_output, test_output, test_mode = False):
             # Last interaction for test
             test_indices.append(indices[-1])
             # second last interaction for validation but not used in this assignment    
-            train_indices.extend(indices[:-2])
+            train_indices.extend(indices[:-1])
     
     # Split the data
     print("Creating train/test sets...")
