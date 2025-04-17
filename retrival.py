@@ -6,9 +6,9 @@ import multiprocessing as mp
 from functools import partial
 import signal
 import sys
-
+from get_neighbor_item import NeighborItem
 class Retrieval:
-    def __init__(self, alpha=0.5, lambda_=0.7, test_mode = False, k = 20, history_length = 3, simple_retrival = False, num_workers=None, rating_normalize = "None"):
+    def __init__(self, alpha=0.5, lambda_=0.7, test_mode = False, k = 20, history_length = 3, retrival_method = "simple", num_workers=None, rating_normalize = "None"):
         with open('item_collaborative_similarity.json', 'r') as f:
             self.collaborative_matrix = json.load(f)           
         with open('meta_Beauty_filter.json', 'r') as f:
@@ -22,9 +22,12 @@ class Retrieval:
         self.unique_items = self.train_data['asin'].unique()
         self.k = k
         self.history_length = history_length
-        self.simple_retrival = simple_retrival
+        self.retrival_method = retrival_method
         self.num_workers = num_workers if num_workers is not None else max(mp.cpu_count() // 2, 1)
         self.rating_normalize = rating_normalize
+        self.neighbor_item = NeighborItem()
+        self.asin_to_index = {asin: index for index, asin in enumerate(self.asins)}
+
     def get_history_interaction(self, user_id):
         '''
         Get the history interaction of a user include tuple of (item, rating)
@@ -50,8 +53,10 @@ class Retrieval:
                 continue
 
             collaborative_score = self.get_collaborative_score(item_id, history_item)
-            semantic_index_1 = self.asins.index(history_item)
-            semantic_index_2 = self.asins.index(item_id)
+
+            # do some optimization here for searching and getting semantic score
+            semantic_index_1 = self.asin_to_index[history_item]
+            semantic_index_2 = self.asin_to_index[item_id]
             semantic_score = self.semantic_matrix[semantic_index_1][semantic_index_2]
             if self.rating_normalize == "None":
                 score += (self.alpha * collaborative_score + (1 - self.alpha) * semantic_score) * (history_rating) * (self.lambda_ ** (i+1))
@@ -101,47 +106,36 @@ class Retrieval:
         for item, rating in history_interaction:
             potential_items.extend(self.collaborative_matrix[item].keys())
         
-        if self.simple_retrival:
+        if self.retrival_method == "simple":
+            # simple retrival method will only use the items in collaborative matrix
             potential_items = list(set(potential_items))
             items = potential_items
-        else:
-            items = self.unique_items
 
-        # Split items into chunks for parallel processing
-        num_cores = self.num_workers
-        print(f"Processing {len(items)} items using {num_cores} cores...")
-        chunk_size = len(items) // num_cores
-        item_chunks = [items[i:i + chunk_size] for i in range(0, len(items), chunk_size)]
+        elif self.retrival_method == "neighbor":
+            # neighbor retrival method will use the neighbor items of the user
+            potential_items = self.neighbor_item.get_neighbor_items(user_id)
+            items = potential_items
         
-        # Create a pool of workers
-        pool = mp.Pool(num_cores)
-        try:
-            partial_func = partial(self._calculate_score_for_items, user_id)
-            chunk_scores = list(tqdm(
-                pool.imap(partial_func, item_chunks),
-                total=len(item_chunks),
-                desc=f"Processing user {user_id}"
-            ))
-        finally:
-            pool.close()
-            pool.join()
+        elif self.retrival_method == "full":
+            # full retrival method will use all items in the dataset
+            items = self.unique_items
+        
+        elif self.retrival_method == "neighbor+simple":
+            # neighbor+simple retrival method will use the neighbor items and the items in collaborative matrix
+            potential_items.extend(self.neighbor_item.get_neighbor_items(user_id))
+            items = list(set(potential_items))
+
+        else:
+            raise ValueError(f"Invalid retrival method: {self.retrival_method}")
         
         # Combine all scores
-        scores = [item for sublist in chunk_scores for item in sublist]
+        scores = self._calculate_score_for_items(user_id, items)
         scores.sort(key=lambda x: x[1], reverse=True)
         return scores[:self.k]
     
-def signal_handler(sig, frame):
-    print('\nGracefully shutting down...')
-    # 确保关闭所有进程池
-    if hasattr(mp, '_current_process') and mp._current_process()._pool is not None:
-        mp._current_process()._pool.terminate()
-    sys.exit(0)
 
 if __name__ == "__main__":
     # 注册信号处理器
-    signal.signal(signal.SIGINT, signal_handler)
-    
     try:
         retrival = Retrieval(alpha=0.5, lambda_=0.7, test_mode=True)
         print(retrival.retrieve_top_k_items("A00414041RD0BXM6WK0GX"))
