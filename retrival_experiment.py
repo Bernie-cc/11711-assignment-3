@@ -46,26 +46,28 @@ def evaluate_model(retriever, test_data, k_values=[5, 10, 20], test_mode=False, 
         ground_truth = row['asin']
         
         # Get model predictions
-        predictions = retriever.retrieve_top_k_items(user_id)
-        pred_items = [item for item, score in predictions]
+        raw_preds = retriever.retrieve_top_k_items(user_id)
+        # force Python types
+        predictions = [(item, float(score)) for item, score in raw_preds]
+        pred_items   = [item for item, _ in predictions]
         
         # Store predictions
         predictions_dict[user_id] = {
             'retrieved_items': predictions,  # List of (item_id, score) tuples
-            'ground_truth': ground_truth
+            'ground_truth': str(ground_truth)
         }
         
         # Calculate metrics for each k
         for k in k_values:
             hits, ndcg = calculate_metrics(pred_items, ground_truth, k)
             metrics[k]['hits'].append(hits)
-            metrics[k]['ndcg'].append(ndcg)
+            metrics[k]['ndcg'].append(float(ndcg))
     
     # Calculate average metrics
     results = {}
     for k in k_values:
-        results[f'Hits@{k}'] = np.mean(metrics[k]['hits'])
-        results[f'NDCG@{k}'] = np.mean(metrics[k]['ndcg'])
+        results[f'Hits@{k}'] = float(np.mean(metrics[k]['hits']))
+        results[f'NDCG@{k}'] = float(np.mean(metrics[k]['ndcg']))
     
     return results, predictions_dict
 
@@ -90,7 +92,7 @@ def log_experiment(results, retriever, test_data, predictions_dict, log_dir='exp
                "lambda": 0.7,
                "history_length": 3,
                "k": 20,
-               "simple_retrival": true,
+               "retrival_method": simple,
                "num_workers": 4
            },
            "results": {
@@ -136,7 +138,7 @@ def log_experiment(results, retriever, test_data, predictions_dict, log_dir='exp
             'lambda': retriever.lambda_,
             'history_length': retriever.history_length,
             'k': retriever.k,
-            'simple_retrival': retriever.simple_retrival,
+            'retrival_method': retriever.retrival_method,
             'num_workers': retriever.num_workers,
             'rating_normalize': retriever.rating_normalize
         },
@@ -165,9 +167,9 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
     
     try:
-        test_sample_size = 100
+        test_sample_size = 1000
         # Initialize retriever
-        retriever = Retrieval(alpha=0.5, lambda_=0.7, simple_retrival=True, rating_normalize="Centered")
+        retriever = Retrieval(alpha=0.5, lambda_=0.7, history_length=3, retrival_method='simple', rating_normalize="Binary")
         
         # Load test data
         test_data = pd.read_csv('beauty.test.csv')

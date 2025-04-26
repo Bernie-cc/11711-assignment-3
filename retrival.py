@@ -6,6 +6,8 @@ import multiprocessing as mp
 from functools import partial
 import signal
 import sys
+import os
+
 from get_neighbor_item import NeighborItem
 class Retrieval:
     def __init__(self, alpha=0.5, lambda_=0.7, test_mode = False, k = 20, history_length = 3, retrival_method = "simple", num_workers=None, rating_normalize = "None"):
@@ -135,7 +137,7 @@ class Retrieval:
     
 
 if __name__ == "__main__":
-    # 注册信号处理器
+    print(os.getcwd())
     try:
         retrival = Retrieval(alpha=0.5, lambda_=0.7, test_mode=True)
         print(retrival.retrieve_top_k_items("A00414041RD0BXM6WK0GX"))
