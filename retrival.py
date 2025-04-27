@@ -16,7 +16,7 @@ class Retrieval:
         with open('meta_Beauty_filter.json', 'r') as f:
             self.asins = [json.loads(line)['asin'] for line in f]
         
-        self.semantic_matrix = np.load('similarities_matrix.npy')
+        self.semantic_matrix = np.load('multimodal_similarity_matrix.npy')
         self.train_data = pd.read_csv('beauty.train.csv')
         self.alpha = alpha 
         self.lambda_ = lambda_

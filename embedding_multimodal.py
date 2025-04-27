@@ -4,7 +4,9 @@ import json
 import requests
 from PIL import Image
 from tqdm import tqdm
-from transformers import CLIPProcessor, CLIPVisionModelWithProjection
+from transformers import CLIPProcessor, CLIPVisionModelWithProjection, CLIPModel
+from transformers import ViTImageProcessor, ViTForImageClassification
+
 from sentence_transformers import SentenceTransformer, util
 
 # Set device
@@ -17,10 +19,14 @@ combination_method = "concat"  # "concat" or "average"
 text_model = SentenceTransformer("Alibaba-NLP/gte-Qwen2-1.5B-instruct", trust_remote_code=True)
 text_model.max_seq_length = 8192
 
-clip_model_name = "openai/clip-vit-base-patch32"
-clip_model = CLIPVisionModelWithProjection.from_pretrained(clip_model_name).to(device)
-clip_processor = CLIPProcessor.from_pretrained(clip_model_name)
+# CLIP
+# image_model_name = "openai/clip-vit-base-patch32"
+# image_model = CLIPModel.from_pretrained(image_model_name).to(device)
+# image_processor = CLIPProcessor.from_pretrained(image_model_name)
 
+# VIT-Transformer
+image_processor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224')
+image_model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224')
 
 
 # Load data
@@ -48,11 +54,11 @@ def create_prompt(item):
 def get_image_embedding(image_url):
     try:
         image = Image.open(requests.get(image_url, stream=True).raw).convert("RGB")
-        inputs = clip_processor(images=image, return_tensors="pt")
+        inputs = image_processor(images=image, return_tensors="pt")
         pixel_values = inputs["pixel_values"].to(device)
 
         with torch.no_grad():
-            outputs = clip_model(pixel_values=pixel_values)
+            outputs = image_model(pixel_values=pixel_values)
 
         return outputs.image_embeds.squeeze(0).to(device)
     except Exception as e:
@@ -111,6 +117,6 @@ args = parser.parse_args()
 use_multimodal = args.multimodal
 combination_method = args.method
 
-## Sample usage: python embedding_generator.py --multimodal --method concat
+## Sample usage: python embedding_multimodal.py --multimodal --method concat
 
 
