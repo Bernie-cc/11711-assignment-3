@@ -16,12 +16,14 @@ After downloading the data, you can run following code to process data and gener
 ```bash
 python process_data.py
 python generate_train_test.py
+python filter_meta_beauty.py
 ```
 
 ## Construct Matrices
 ```bash
 python construct_collaborative.py
-python 
+python embedding.py
+python embedding_dict.py
 ``` 
 
 ## Experiment for retrival
