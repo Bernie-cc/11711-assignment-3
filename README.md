@@ -31,6 +31,9 @@ python retrival_experiment.py
 
 ## Experiment for reranking
 ```bash
+python rank_prompt_generation.py
+python ranking.py
+python evaluate_rank.py
 ```
 
 
