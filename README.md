@@ -28,7 +28,7 @@ The original **S**imple **T**raining‑free **A**pproach for **R**ecommendation 
 1. **Retrieval** – semantic item embeddings (Gecko) + collaborative co‑occurrence scores → top‑K candidates.  
 2. **Ranking** – an LLM (Gemini 1.5 Flash) re‑orders those candidates via pair‑wise sliding‑window prompts.
 <p align="center">
-  <img src="Image/original.png" width="720" alt="Baseline STAR pipeline">
+  <img src="Image/Original.png" width="720" alt="Baseline STAR pipeline">
 </p>
 
 STAR already outperforms several fully‑trained recommenders while requiring zero training.
@@ -49,7 +49,7 @@ STAR already outperforms several fully‑trained recommenders while requiring ze
 
 ## 🏆 Detailed Results
 <p align="center">
-  <img src="Image/results.png" width="560" alt="STAR+ results">
+  <img src="Image/Results.png" width="560" alt="STAR+ results">
 </p>
 
 
