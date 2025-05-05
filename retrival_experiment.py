@@ -71,7 +71,7 @@ def evaluate_model(retriever, test_data, k_values=[5, 10, 20], test_mode=False, 
 
 def signal_handler(sig, frame):
     print('\nGracefully shutting down...')
-    # 确保关闭所有进程池
+    # Terminate any active multiprocessing pools
     if hasattr(mp, '_current_process') and mp._current_process()._pool is not None:
         mp._current_process()._pool.terminate()
     sys.exit(0)
@@ -161,7 +161,6 @@ def log_experiment(results, retriever, test_data, predictions_dict, log_dir='exp
     print(f"Retrieval results saved to {retrieval_file}")
 
 if __name__ == "__main__":
-    # 注册信号处理器
     signal.signal(signal.SIGINT, signal_handler)
     
     try:

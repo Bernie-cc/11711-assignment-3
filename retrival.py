@@ -135,7 +135,6 @@ class Retrieval:
     
 
 if __name__ == "__main__":
-    # 注册信号处理器
     try:
         retrival = Retrieval(alpha=0.5, lambda_=0.7, test_mode=True)
         print(retrival.retrieve_top_k_items("A00414041RD0BXM6WK0GX"))
