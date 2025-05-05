@@ -3,12 +3,14 @@
 Re‑implementation and extension of the DeepMind paper  
 [**STAR: A Simple Training‑free Approach for Recommendations using Large Language Models**](https://arxiv.org/abs/2410.16458).
 
+
 **STAR+** preserves STAR’s no‑training philosophy while adding:
 * user‑persona embeddings  
 * fast FAISS neighbour search  
 * optional multimodal (image) embeddings  
 * adaptive score fusion  
 * prompt‑engineered LLM ranking
+
 
 ## 📌 Highlights
 | Feature | What it gives you |
@@ -18,6 +20,7 @@ Re‑implementation and extension of the DeepMind paper
 | **Latency‑friendly** | IVF‑HNSW index + neighbour caching → sub‑second inference per user. |
 | **Plug‑and‑play** | Swap any sentence‑encoder or LLM via simple YAML. |
 | **Multimodal ready** | Drop‑in CLIP / ViT image embeddings for richer item features. |
+
 
 
 ## 🔰 Baseline: STAR in a Nutshell
@@ -31,6 +34,7 @@ The original **S**imple **T**raining‑free **A**pproach for **R**ecommendation 
 STAR already outperforms several fully‑trained recommenders while requiring zero training.
 
 
+## 🚀 What STAR+ Adds
 
 | Upgrade | Description |
 |---------|-------------|
@@ -48,8 +52,10 @@ STAR already outperforms several fully‑trained recommenders while requiring ze
   <img src="Image/results.png" width="560" alt="STAR+ results">
 </p>
 
+
 ## 📂 Dataset
 For this project, we utilize the [Amazon Reviews dataset](https://cseweb.ucsd.edu/~jmcauley/datasets.html#amazon_reviews), the same corpus adopted in the original STAR paper.
+
 
 ## ⚙️ Pipeline Overview
 
