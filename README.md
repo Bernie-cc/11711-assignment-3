@@ -54,17 +54,37 @@ STAR already outperforms several fully‑trained recommenders while requiring ze
 
 
 ## 📂 Dataset
-For this project, we utilize the [Amazon Reviews dataset](https://cseweb.ucsd.edu/~jmcauley/datasets.html#amazon_reviews), the same corpus adopted in the original STAR paper.
+For this project, we utilize the [Amazon Reviews dataset](https://cseweb.ucsd.edu/~jmcauley/datasets/amazon/links.html), the same corpus adopted in the original STAR paper.
 
 
 ## ⚙️ Pipeline Overview
 
+### Setup Environment
+```bash
+sudo apt install python3 python3-pip git -y
+sudo apt install python3-venv -y
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirenments.txt
+```
+
 ### 1️⃣ Data Process
+To download and unzip user-product rating dataset
+```bash
+wget https://snap.stanford.edu/data/amazon/productGraph/categoryFiles/reviews_Beauty_5.json.gz
+gunzip reviews_Beauty_5.json.gz
+```
+
+To download and unzip product meta dataset
+```bash
+wget https://snap.stanford.edu/data/amazon/productGraph/categoryFiles/meta_Beauty.json.gz
+```
+
 After downloading the data, you can run following code to process data and generate the train test data. Since our recommendation system do not need training, we do not need valid dataset here. We also filter items that have no history and meta data to improve efficiency.
 ```bash
-python data_processing\process_data.py
-python data_processing\generate_train_test.py
-python data_processing\filter_item_meta.py
+python data_processing/process_data.py
+python data_processing/generate_train_test.py
+python data_processing/filter_item_meta.py
 ```
 
 ### 2️⃣ Construct Matrices
