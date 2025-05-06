@@ -1,10 +1,10 @@
 import gzip
 import json
-
+import pandas as pd
 # Load Beauty_5.json and extract unique ASINs
-with open('Beauty_5.json', 'r') as beauty_file:
-    beauty_data = [json.loads(line) for line in beauty_file]
-    beauty_asins = set(entry['asin'] for entry in beauty_data)
+with open('beauty_processed.csv', 'r') as beauty_file:
+    beauty_data = pd.read_csv(beauty_file)
+    beauty_asins = set(beauty_data['asin'])
 
 print(f"Extracted {len(beauty_asins)} unique ASINs from Beauty_5.json.")
 
